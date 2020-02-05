@@ -3,37 +3,37 @@ import { connect } from 'react-redux'
 import { getQuestions, inputAnswer, submitAnswer } from './actions'
 import { QuestionAndAnswer } from './QuestionAndAnswer'
 
-const questionForm = ({ getQuestions, submitAnswer, inputAnswer, loaded, questions, results, userAnswers }) => {
+const questionForm = ({ getQuestions, submitAnswer, inputAnswer, loaded, questions, results, hasCompletedQns }) => {
 
     useEffect(() => {
         getQuestions()
     }, [])
 
-    const generateQuestionAndAnswer = (key,mark, question, answer,) => {
+    const generateQuestionAndAnswer = (key, question, answer, mark = null) => {
         switch(mark) {
             case true: 
-            return <QuestionAndAnswer isRight={'CORRECT'} inputAnswer={inputAnswer} questionNum={question.number} key={key} choice={answer} topic={question.topic}/>
+            return <QuestionAndAnswer classColour="correct" isRight='CORRECT' inputAnswer={inputAnswer} questionNum={question.number} key={key} choice={answer} topic={question.topic}/>
             case false: 
-            return <QuestionAndAnswer isRight={'WRONG'} inputAnswer={inputAnswer} questionNum={question.number} key={key} choice={answer} topic={question.topic}/>
+            return <QuestionAndAnswer classColour="wrong" isRight='WRONG' inputAnswer={inputAnswer} questionNum={question.number} key={key} choice={answer} topic={question.topic}/>
             default:
             return <QuestionAndAnswer inputAnswer={inputAnswer} questionNum={question.number} key={key} choice={answer} topic={question.topic}/>
         }
     }
 
-    const markingAnswers = (question, answerToQuestion) => {
+    const markingAnswers = (question, answerToQuestion = {}) => {
         return question.answers.map((answer, key) => {
                 if(answerToQuestion.isRight) {
                     if(answer.answer === answerToQuestion.userAnswer) {
-                        return generateQuestionAndAnswer(key,true, question, answer)
+                        return generateQuestionAndAnswer(key, question, answer, true)
                     }
                 } else {
                     if(answer.answer === answerToQuestion.userAnswer) {
-                        return generateQuestionAndAnswer(key,false, question, answer)
+                        return generateQuestionAndAnswer(key, question, answer, false)
                     } else if(answer.answer === answerToQuestion.correctAnswer) {
-                        return generateQuestionAndAnswer(key,true, question, answer)
+                        return generateQuestionAndAnswer(key, question, answer, true)
                     }
                 }
-                return generateQuestionAndAnswer(key, null, question, answer)
+                return generateQuestionAndAnswer(key, question, answer)
             }
         )
     }
@@ -47,25 +47,31 @@ const questionForm = ({ getQuestions, submitAnswer, inputAnswer, loaded, questio
     }
 
     return (
-        <div>
+        <div className="app">
             {!loaded ? 'Loading...' 
-            : <div>
+            : <div className="question-form">
             <form>
                 {questions.map((question, index) => {
                     if(results) {
                         const answerToQuestion = results.find(result => result.number === question.number)
-                        console.log(answerToQuestion)
+                        if(answerToQuestion) {
                             return createQuestionFields(index, question, markingAnswers(question, answerToQuestion))
+                        } else {
+                            return createQuestionFields(index, question, markingAnswers(question))
+                        }
                     }
-                    return createQuestionFields(index, question, markingAnswers(question, {}))
+                    return createQuestionFields(index, question, markingAnswers(question))
                     })}
                 <button onClick={submitAnswer}>Submit</button>
             </form> 
             </div>}
 
 
-                {results && 
-                <div>
+                {!results 
+                ? !hasCompletedQns
+                ? <h2>Please answer all the questions</h2>
+                : 'Loading score...'
+                : <div className="results">
                     <h2>
                         Total Score: {results.filter(result => result.isRight).length} out of {results.length}
                     </h2>

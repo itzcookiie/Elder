@@ -1,0 +1,22 @@
+.app {
+    display: flex;
+    align-items: center;
+}
+
+.question-form {
+    flex: 1 1 800px;
+}
+
+.results {
+    flex: 1 1 500px;
+}
+
+.correct {
+    color: red
+}
+
+.wrong {
+    color: blue;
+}
+
+

@@ -34,6 +34,12 @@ export const submitAnswer = event => (dispatch, getState) => {
     event.preventDefault();
     dispatch({ type: types.SUBMITTING_ANSWER })
     const { userAnswers } = getState()
+    dispatch({ 
+        type: types.COMPLETED_QNS,
+        payload: {
+            hasCompletedQns: true 
+        }
+        })
     return fetch('http://localhost:8000/', {
         method: 'POST',
         headers: {
@@ -60,5 +66,5 @@ export const getQuestions = () => (dispatch, getState) => {
         dispatch({type: types.GETTING_QUESTIONS})
         dispatch(gettingQuestionsSuccess(data))
     })
-    .catch(error => console.log('Error', error))
+    .catch(console.error)
 }
